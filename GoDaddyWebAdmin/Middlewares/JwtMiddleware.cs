@@ -5,7 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Asp_NET_Core_6_Template.Middlewares
+namespace GoDaddyWebAdmin.Middlewares
 {
     public class JwtMiddleware
     {

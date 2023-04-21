@@ -1,8 +1,8 @@
-using Asp_NET_Core_6_Template.Attributes;
+using GoDaddyWebAdmin.Attributes;
 using Common.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Asp_NET_Core_6_Template.Controllers
+namespace GoDaddyWebAdmin.Controllers
 {
     [ApiController]
     [Route("[controller]")]

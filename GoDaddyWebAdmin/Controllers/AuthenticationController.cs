@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Authentification;
 
-namespace Asp_NET_Core_6_Template.Controllers
+namespace GoDaddyWebAdmin.Controllers
 {
     [ApiController]
     public class AuthenticationController : ControllerBase

@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using System.Net;
 
-namespace Asp_NET_Core_6_Template.Middlewares
+namespace GoDaddyWebAdmin.Middlewares
 {
     public class ErrorHandlingMiddleware
     {

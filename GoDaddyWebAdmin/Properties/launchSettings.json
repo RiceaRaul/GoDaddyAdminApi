@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "Asp_NET_Core_6_Template": {
+    "GoDaddyWebAdmin": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,

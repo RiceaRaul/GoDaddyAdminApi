@@ -1,4 +1,4 @@
-using Asp_NET_Core_6_Template.Middlewares;
+using GoDaddyWebAdmin.Middlewares;
 using BusinessLayer;
 using Common.Extensions;
 using Common.Settings;

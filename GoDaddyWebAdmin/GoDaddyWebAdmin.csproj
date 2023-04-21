@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>Asp_NET_Core_6_Template</RootNamespace>
+    <RootNamespace>GoDaddyWebAdmin</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
