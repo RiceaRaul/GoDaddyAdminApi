@@ -81,9 +81,9 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.UseSalsa20("0053A6F94C9FF24598EB3E91E4378ADD3083D6297CCF2275C81B6EC11467BA0D", "0D74DB42A91077DE");
-BusinessLayerConfiguration.RegisterDepedencies(builder.Services);
+builder.Services.UseSalsa20(appSettings.Salsa20.Key, appSettings.Salsa20.Iv);
 
+BusinessLayerConfiguration.RegisterDepedencies(builder.Services);
 
 var app = builder.Build();
 

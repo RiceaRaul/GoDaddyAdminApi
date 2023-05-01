@@ -47,6 +47,21 @@ namespace UnitTests.Encryptions
             }
         }
 
+        [Fact]
+        public void GenerateRandomKeyAndIV()
+        {
+            byte[] key = new byte[32];
+            byte[] iv = new byte[8];
+
+            using (var rng = new RNGCryptoServiceProvider())
+            {
+                rng.GetBytes(key);
+                rng.GetBytes(iv);
+            }
+            string keyString = Convert.ToHexString(key);         
+            string ivString = Convert.ToHexString(iv);
+        }
+
         private static byte[] ToBytes(string hex)
         {
             byte[] output = new byte[hex.Length / 2];

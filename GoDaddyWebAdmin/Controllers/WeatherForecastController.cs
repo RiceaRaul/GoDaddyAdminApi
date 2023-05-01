@@ -47,17 +47,4 @@ namespace GoDaddyWebAdmin.Controllers
         }
 
     }
-
-
-    public class ShopperResponse : HttpWrapperError
-    {
-        public string shopperId { get; set; }
-        public string marketId { get; set; }
-        public string email { get; set; }
-        public object externalId { get; set; }
-        public string nameFirst { get; set; }
-        public string nameLast { get; set; }
-        public string customerId { get; set; }
-    }
-
 }

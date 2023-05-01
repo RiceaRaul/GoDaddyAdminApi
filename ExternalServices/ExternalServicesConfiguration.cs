@@ -9,6 +9,7 @@ namespace ExternalServices
         public static void RegisterDepedencies(IServiceCollection services)
         {
             services.AddScoped<IHttpClientWrapper, HttpClientWrapper>();
+            services.AddScoped<IGoDaddyClient, GoDaddyClient>();
         }
     }
 }
