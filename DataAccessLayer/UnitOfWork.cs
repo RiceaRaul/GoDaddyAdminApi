@@ -12,11 +12,11 @@ namespace DataAccessLayer
         private bool _disposed;
         public UnitOfWork(IOptions<AppSettings> appSettings)
         {
-            InitCustomColumn();
+           /* InitCustomColumn();
 
-            _connection = new SqlConnection("Server=localhost;Database=test;Trusted_Connection=true;TrustServerCertificate=Yes;");
+            _connection = new SqlConnection("Data Source=91.92.136.222;Initial Catalog=CST;User ID=sa;Password=Relisys123;MultipleActiveResultSets=True");
             _connection.Open();
-            _transaction = _connection.BeginTransaction(); 
+            _transaction = _connection.BeginTransaction(); */
         }
 
         private void InitCustomColumn()

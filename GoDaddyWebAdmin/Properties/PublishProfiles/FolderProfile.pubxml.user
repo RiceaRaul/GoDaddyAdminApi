@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121.
+-->
+<Project>
+  <PropertyGroup>
+    <_PublishTargetUrl>D:\GIT\GoDaddyAdmin\GoDaddyAdminApi\GoDaddyWebAdmin\bin\Release\net6.0\publish\</_PublishTargetUrl>
+    <History>True|2023-04-21T12:03:18.2871840Z;True|2023-04-21T14:57:09.4641658+03:00;False|2023-04-21T14:56:38.8661222+03:00;True|2023-04-21T14:44:14.6206146+03:00;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+</Project>
