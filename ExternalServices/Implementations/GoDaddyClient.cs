@@ -2,6 +2,7 @@
 using Encryptions.Interfaces;
 using ExternalServices.Interfaces;
 using Microsoft.Extensions.Options;
+using Models.GoDaddyApi.Domains;
 using Models.GoDaddyApi.Shopper;
 
 namespace ExternalServices.Implementations
@@ -12,13 +13,15 @@ namespace ExternalServices.Implementations
         private readonly ISalsa20Service _encryptionService;
         private readonly AppSettings _appSettings;
 
-        private const string GET_SHOPPER = "https://api.godaddy.com/v1/shoppers/{0}?includes=customerId";
+        private const string GET_SHOPPER = "/shoppers/{0}?includes=customerId";
+        private const string DOMAINS = "domains";
 
         public GoDaddyClient(IHttpClientWrapper httpClient,IOptions<AppSettings> appSettings, ISalsa20Service encryptionService)
         {
             _httpClient = httpClient;
             _encryptionService = encryptionService;
             _appSettings = appSettings.Value;
+            _httpClient.setBaseUrl(_appSettings.GoDaddySettings.BaseUrl);
 
             setAuthorization();
         }
@@ -34,6 +37,20 @@ namespace ExternalServices.Implementations
             var request = await _httpClient.PerformAction<ShopperResponse>(url, HttpMethod.Get);
 
             return request;
+        }
+
+        /*public async Task<bool> CreateRecord()
+        {
+            return true;
+        }*/
+
+        public async Task<GetDomainsResponse> GetDomains()
+        {
+            var request = await _httpClient.PerformAction<List<Domain>>(DOMAINS, HttpMethod.Get);
+
+            return new GetDomainsResponse {
+                Domains = request
+            };
         }
     }
 }

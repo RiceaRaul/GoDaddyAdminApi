@@ -1,5 +1,6 @@
 ﻿using ExternalServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Models.GoDaddyApi.Domains;
 using Models.GoDaddyApi.Shopper;
 
 namespace GoDaddyWebAdmin.Controllers
@@ -18,6 +19,15 @@ namespace GoDaddyWebAdmin.Controllers
         public async Task<ActionResult<ShopperResponse>> GetShopper(string id)
         {
             var response = await _goDaddyClient.GetShopperById(id);
+
+            return Ok(response);
+        }
+
+        [HttpGet]
+        [Route("GoDaddy/GetDomains")]
+        public async Task<ActionResult<GetDomainsResponse>> GetDomains()
+        {
+            var response = await _goDaddyClient.GetDomains();
 
             return Ok(response);
         }

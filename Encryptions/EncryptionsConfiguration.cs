@@ -13,9 +13,9 @@ namespace Encryptions
     }
 
     public static class Salsa20Extensions{
-        public static IServiceCollection UseSalsa20(this IServiceCollection services,string key,string iv,int rounds = 8)
+        public static IServiceCollection UseSalsa20(this IServiceCollection services,string key,string iv,string hmac,int rounds = 20)
         {
-            return services.AddScoped<ISalsa20Service, Salsa20Service>(provider => new Salsa20Service(key,iv,rounds));
+            return services.AddSingleton<ISalsa20Service, Salsa20Service>(provider => new Salsa20Service(key,iv,hmac,rounds));
         }
     }
 }

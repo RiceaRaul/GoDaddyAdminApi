@@ -49,6 +49,11 @@ namespace ExternalServices.Implementations
             _httpClient.DefaultRequestHeaders.Add(key, value);
         }
 
+        public void setBaseUrl(string url)
+        {
+            _httpClient.BaseAddress = new Uri(url);
+        }
+
         public async Task<RModel> PerformAction<REModel, RModel>(string url, REModel payload, HttpMethod method) where RModel : new()
         {
             var reqeuest = GenerateRequest<REModel>(url, payload, method);
@@ -89,6 +94,15 @@ namespace ExternalServices.Implementations
                     var responseType = typeof(RModel);
                     if(responseType.IsPrimitive)
                     {
+                        if (responseType.Equals(typeof(bool)))
+                        {
+                            return stringResponse switch
+                            {
+                                "" => (RModel)Convert.ChangeType(true, responseType),
+                                "true" => (RModel)Convert.ChangeType(true, responseType),
+                                "false" => (RModel)Convert.ChangeType(false, responseType),
+                            };
+                        }
                         return (RModel)Convert.ChangeType(stringResponse,responseType);
                     }
                     else

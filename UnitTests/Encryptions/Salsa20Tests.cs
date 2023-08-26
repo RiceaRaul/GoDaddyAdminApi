@@ -9,6 +9,9 @@ namespace UnitTests.Encryptions
 {
     public class Salsa20Tests
     {
+
+        private const string HEX_REGEX = @"\A\b[0-9a-fA-F]+\b\Z";
+
         [Fact]
         public void BlockSize()
         {
@@ -50,7 +53,7 @@ namespace UnitTests.Encryptions
         [Fact]
         public void GenerateRandomKeyAndIV()
         {
-            byte[] key = new byte[32];
+            byte[] key = new byte[64];
             byte[] iv = new byte[8];
 
             using (var rng = new RNGCryptoServiceProvider())
@@ -60,6 +63,8 @@ namespace UnitTests.Encryptions
             }
             string keyString = Convert.ToHexString(key);         
             string ivString = Convert.ToHexString(iv);
+            keyString.Should().MatchRegex(HEX_REGEX);
+            ivString.Should().MatchRegex(HEX_REGEX);
         }
 
         private static byte[] ToBytes(string hex)

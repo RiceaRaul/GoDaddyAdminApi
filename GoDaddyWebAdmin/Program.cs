@@ -81,7 +81,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.UseSalsa20(appSettings.Salsa20.Key, appSettings.Salsa20.Iv);
+builder.Services.UseSalsa20(appSettings.Salsa20.Key, appSettings.Salsa20.Iv, appSettings.Salsa20.Hmac);
 
 BusinessLayerConfiguration.RegisterDepedencies(builder.Services);
 

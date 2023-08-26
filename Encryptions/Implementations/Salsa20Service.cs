@@ -1,43 +1,55 @@
 ﻿using Encryptions.Interfaces;
+using System;
 using System.Security.Cryptography;
-using static System.Net.Mime.MediaTypeNames;
 using System.Text;
 
 namespace Encryptions.Implementations
 {
-    public class Salsa20Service : ISalsa20Service
+    public class Salsa20Service : HMACServiceBase, ISalsa20Service
     {
         private readonly SymmetricAlgorithm _salsa20;
-        private readonly string Key;
-        private readonly string IV;
+        private readonly string key;
+        private readonly string iv;
         private readonly int rounds;
 
-        public Salsa20Service(string key,string iv,int rounds = 8)
+        public Salsa20Service(string key, string iv, string hmac, int rounds = 20)
         {
-            _salsa20 = new Salsa20() { Rounds = rounds };
-            Key = key;
-            IV = iv;
+            _salsa20 = new Salsa20 { Rounds = rounds };
+            this.key = key;
+            this.iv = iv;
             this.rounds = rounds;
+            SetKey(ToBytes(hmac));
+/*            GenerateKey();*/
         }
 
         public string Encrypt(string target)
         {
-            var encrypt = _salsa20.CreateEncryptor(ToBytes(Key), ToBytes(IV));
+            var encryptor = _salsa20.CreateEncryptor(ToBytes(key), ToBytes(iv));
             byte[] bytes = Encoding.ASCII.GetBytes(target);
-            var transform = encrypt.TransformFinalBlock(bytes, 0, bytes.Length);
-            string result = Convert.ToHexString(transform);
+            var encryptedData = encryptor.TransformFinalBlock(bytes, 0, bytes.Length);
+            var hmac = ComputeHMAC(encryptedData);
+            var encryptedResult = Convert.ToHexString(hmac) + Convert.ToHexString(encryptedData);
 
-            return result;           
+            return encryptedResult;
         }
 
         public string Decrypt(string target)
         {
-            var decryptor = _salsa20.CreateDecryptor(ToBytes(Key),ToBytes(IV));
-            byte[] bytes = ToBytes(target);
-            var decrypt = decryptor.TransformFinalBlock(bytes, 0, bytes.Length);
-            var decryptResult = Encoding.ASCII.GetString(decrypt);
+            var receivedHMAC = ToBytes(target.Substring(0, 64));
+            var receivedData = ToBytes(target.Substring(64));
 
-            return decryptResult;
+            var computedHMAC = ComputeHMAC(receivedData);
+
+            if (!HMACsMatch(receivedHMAC, computedHMAC))
+            {
+                throw new InvalidOperationException("HMAC verification failed. The data may have been tampered with.");
+            }
+
+            var decryptor = _salsa20.CreateDecryptor(ToBytes(key), ToBytes(iv));
+            var decryptedData = decryptor.TransformFinalBlock(receivedData, 0, receivedData.Length);
+            var decryptedResult = Encoding.ASCII.GetString(decryptedData);
+
+            return decryptedResult;
         }
 
         private static byte[] ToBytes(string hex)
@@ -47,9 +59,10 @@ namespace Encryptions.Implementations
                 output[nChar / 2] = ToByte(hex, nChar);
             return output;
         }
+
         private static byte ToByte(string hex, int offset)
         {
-            return (byte)(ToNibble(hex[offset]) * 16 + ToNibble(hex[offset + 1]));
+            return (byte)((ToNibble(hex[offset]) << 4) | ToNibble(hex[offset + 1]));
         }
 
         private static int ToNibble(char hex)

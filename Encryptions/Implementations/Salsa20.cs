@@ -84,13 +84,17 @@ namespace Encryptions.Implementations
         private static byte[] GetRandomBytes(int byteCount)
         {
             byte[] bytes = new byte[byteCount];
-            using (RandomNumberGenerator rng = new RNGCryptoServiceProvider())
+            using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
+            {
                 rng.GetBytes(bytes);
+            }
+
             return bytes;
         }
 
         private sealed class Salsa20CryptoTransform : ICryptoTransform
         {
+
             public Salsa20CryptoTransform(byte[] key, byte[] iv, int rounds)
             {
                 Debug.Assert(key.Length == 16 || key.Length == 32, "abyKey.Length == 16 || abyKey.Length == 32", "Invalid key size.");
@@ -201,69 +205,46 @@ namespace Encryptions.Implementations
 
                 for (int round = m_rounds; round > 0; round -= 2)
                 {
-                    state[4] ^= Rotate(Add(state[0], state[12]), 7);
-                    state[8] ^= Rotate(Add(state[4], state[0]), 9);
-                    state[12] ^= Rotate(Add(state[8], state[4]), 13);
-                    state[0] ^= Rotate(Add(state[12], state[8]), 18);
-                    state[9] ^= Rotate(Add(state[5], state[1]), 7);
-                    state[13] ^= Rotate(Add(state[9], state[5]), 9);
-                    state[1] ^= Rotate(Add(state[13], state[9]), 13);
-                    state[5] ^= Rotate(Add(state[1], state[13]), 18);
-                    state[14] ^= Rotate(Add(state[10], state[6]), 7);
-                    state[2] ^= Rotate(Add(state[14], state[10]), 9);
-                    state[6] ^= Rotate(Add(state[2], state[14]), 13);
-                    state[10] ^= Rotate(Add(state[6], state[2]), 18);
-                    state[3] ^= Rotate(Add(state[15], state[11]), 7);
-                    state[7] ^= Rotate(Add(state[3], state[15]), 9);
-                    state[11] ^= Rotate(Add(state[7], state[3]), 13);
-                    state[15] ^= Rotate(Add(state[11], state[7]), 18);
-                    state[1] ^= Rotate(Add(state[0], state[3]), 7);
-                    state[2] ^= Rotate(Add(state[1], state[0]), 9);
-                    state[3] ^= Rotate(Add(state[2], state[1]), 13);
-                    state[0] ^= Rotate(Add(state[3], state[2]), 18);
-                    state[6] ^= Rotate(Add(state[5], state[4]), 7);
-                    state[7] ^= Rotate(Add(state[6], state[5]), 9);
-                    state[4] ^= Rotate(Add(state[7], state[6]), 13);
-                    state[5] ^= Rotate(Add(state[4], state[7]), 18);
-                    state[11] ^= Rotate(Add(state[10], state[9]), 7);
-                    state[8] ^= Rotate(Add(state[11], state[10]), 9);
-                    state[9] ^= Rotate(Add(state[8], state[11]), 13);
-                    state[10] ^= Rotate(Add(state[9], state[8]), 18);
-                    state[12] ^= Rotate(Add(state[15], state[14]), 7);
-                    state[13] ^= Rotate(Add(state[12], state[15]), 9);
-                    state[14] ^= Rotate(Add(state[13], state[12]), 13);
-                    state[15] ^= Rotate(Add(state[14], state[13]), 18);
+                    for (int i = 0; i < 16; i++)
+                    {
+                        state[i] ^= Rotate(Add(NextState(state, i), state[i]), 7);
+                    }
                 }
 
                 for (int index = 0; index < 16; index++)
+                {
                     ToBytes(Add(state[index], input[index]), output, 4 * index);
+                }
+            }
+
+            private uint NextState(uint[] state, int index)
+            {
+                int nextIndex = (index + 1) % 16;
+                return Add(state[nextIndex], state[index]);
             }
 
             private void Initialize(byte[] key, byte[] iv)
             {
                 m_state = new uint[16];
-                m_state[1] = ToUInt32(key, 0);
-                m_state[2] = ToUInt32(key, 4);
-                m_state[3] = ToUInt32(key, 8);
-                m_state[4] = ToUInt32(key, 12);
-
-                byte[] constants = key.Length == 32 ? c_sigma : c_tau;
                 int keyIndex = key.Length - 16;
+                byte[] constants = key.Length == 32 ? c_sigma : c_tau;
 
-                m_state[11] = ToUInt32(key, keyIndex + 0);
-                m_state[12] = ToUInt32(key, keyIndex + 4);
-                m_state[13] = ToUInt32(key, keyIndex + 8);
-                m_state[14] = ToUInt32(key, keyIndex + 12);
-                m_state[0] = ToUInt32(constants, 0);
-                m_state[5] = ToUInt32(constants, 4);
-                m_state[10] = ToUInt32(constants, 8);
-                m_state[15] = ToUInt32(constants, 12);
+                for (int i = 0; i < 4; i++)
+                {
+                    m_state[i + 1] = ToUInt32(key, i * 4);
+                    m_state[i + 11] = ToUInt32(key, keyIndex + (i * 4));
+                    m_state[i] = ToUInt32(constants, i * 4);
+                }
 
-                m_state[6] = ToUInt32(iv, 0);
-                m_state[7] = ToUInt32(iv, 4);
+                for (int i = 0; i < 2; i++)
+                {
+                    m_state[i + 6] = ToUInt32(iv, i * 4);
+                }
+
                 m_state[8] = 0;
                 m_state[9] = 0;
             }
+
 
             private static uint ToUInt32(byte[] input, int inputOffset)
             {

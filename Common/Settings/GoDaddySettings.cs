@@ -2,6 +2,7 @@
 {
     public class GoDaddySettings
     {
-        public string Authorization { get; set; } = String.Empty;
+        public string BaseUrl { get; set; } = string.Empty;
+        public string Authorization { get; set; } = string.Empty;
     }
 }
