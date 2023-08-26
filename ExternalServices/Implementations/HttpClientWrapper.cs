@@ -1,4 +1,5 @@
 ﻿using ExternalServices.Interfaces;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Text;
 
@@ -7,42 +8,34 @@ namespace ExternalServices.Implementations
     public class HttpClientWrapper : IHttpClientWrapper
     {
         private readonly HttpClient _httpClient;
-        public HttpClientWrapper()
+        private readonly ILogger<HttpClientWrapper> _logger;
+        public HttpClientWrapper(ILogger<HttpClientWrapper>  logger)
         {
             _httpClient = new HttpClient();
+            _logger = logger;
         }
 
 
-        private HttpRequestMessage GenerateRequest<REModel>(string url, REModel payload, HttpMethod method)
+        private static HttpRequestMessage GenerateRequest<REModel>(string url, REModel payload, HttpMethod method)
         {
-            HttpRequestMessage sendRequest = new HttpRequestMessage(method, url);
+            HttpRequestMessage sendRequest = new(method, url);
             
             var payloadType = typeof(REModel);
-            var content = new StringContent(
-                payloadType == typeof(string)
-                ? payload.ToString() 
-                : JsonConvert.SerializeObject(payload)
-                    ,Encoding.UTF8
-                , payloadType == typeof(string) 
-                ? "application/xml" 
-                : "application/json");
 
-            sendRequest.Content = content;
+            var content = payloadType == typeof(string) ? payload!.ToString() : JsonConvert.SerializeObject(payload);
+            var requestType = payloadType == typeof(string) ? "application/xml" : "application/json";
+            var stringContent = new StringContent(content!,Encoding.UTF8, requestType);
+            sendRequest.Content = stringContent;
 
             return sendRequest;
         }
 
-        private HttpRequestMessage GenerateRequest(string url, HttpMethod method)
+        private static HttpRequestMessage GenerateRequest(string url, HttpMethod method)
         {
-            HttpRequestMessage sendRequest = new HttpRequestMessage(method, url);
+            HttpRequestMessage sendRequest = new(method, url);
 
             return sendRequest;
         }
-
-/*        private RModel HandlerError<RModel>(RModel payload,HttpStatusCode statusCode,string message)
-        {
-
-        }*/
 
         public void addHeader(string key,string value)
         {
@@ -59,25 +52,29 @@ namespace ExternalServices.Implementations
             var reqeuest = GenerateRequest<REModel>(url, payload, method);
             try
             {
-                using (var request = await _httpClient.SendAsync(reqeuest))
-                {
-                    request.EnsureSuccessStatusCode();
-                    var stringResponse = await request.Content.ReadAsStringAsync();
+                using var request = await _httpClient.SendAsync(reqeuest);
+                request.EnsureSuccessStatusCode();
+                var stringResponse = await request.Content.ReadAsStringAsync();
 
-                    var responseType = typeof(RModel);
-                    if (responseType.IsPrimitive)
+                var responseType = typeof(RModel);
+                if (responseType.IsPrimitive)
+                {
+                    return (RModel)Convert.ChangeType(stringResponse, responseType);
+                }
+                else
+                {
+                    var response = JsonConvert.DeserializeObject<RModel>(stringResponse);
+                    if (response is null)
                     {
-                        return (RModel)Convert.ChangeType(stringResponse, responseType);
+                        return new RModel();
                     }
-                    else
-                    {
-                        return JsonConvert.DeserializeObject<RModel>(stringResponse);
-                    }
+                    return response;
                 }
             }
             catch(Exception ex) 
             {
-                throw ex;
+                _logger.LogError(ex.Message, ex);
+                throw;
             }
         }
 
@@ -86,34 +83,39 @@ namespace ExternalServices.Implementations
             var reqeuest = GenerateRequest(url, method);
             try
             {
-                using (var request = await _httpClient.SendAsync(reqeuest))
-                {
-                    request.EnsureSuccessStatusCode();
-                    var stringResponse = await request.Content.ReadAsStringAsync();
+                using var request = await _httpClient.SendAsync(reqeuest);
+                request.EnsureSuccessStatusCode();
+                var stringResponse = await request.Content.ReadAsStringAsync();
 
-                    var responseType = typeof(RModel);
-                    if(responseType.IsPrimitive)
+                var responseType = typeof(RModel);
+                if (responseType.IsPrimitive)
+                {
+                    if (responseType.Equals(typeof(bool)))
                     {
-                        if (responseType.Equals(typeof(bool)))
+                        return stringResponse switch
                         {
-                            return stringResponse switch
-                            {
-                                "" => (RModel)Convert.ChangeType(true, responseType),
-                                "true" => (RModel)Convert.ChangeType(true, responseType),
-                                "false" => (RModel)Convert.ChangeType(false, responseType),
-                            };
-                        }
-                        return (RModel)Convert.ChangeType(stringResponse,responseType);
+                            "" => (RModel)Convert.ChangeType(true, responseType),
+                            "true" => (RModel)Convert.ChangeType(true, responseType),
+                            "false" => (RModel)Convert.ChangeType(false, responseType),
+                            _ => throw new NotImplementedException(),
+                        };
                     }
-                    else
+                    return (RModel)Convert.ChangeType(stringResponse, responseType);
+                }
+                else
+                {
+                    var response = JsonConvert.DeserializeObject<RModel>(stringResponse);
+                    if (response is null)
                     {
-                        return JsonConvert.DeserializeObject<RModel>(stringResponse);
+                        return new RModel();
                     }
+                    return response;
                 }
             }
             catch (Exception ex)
             {
-                throw ex;
+                _logger.LogError(ex.Message, ex);
+                throw;
             }
         }
     }

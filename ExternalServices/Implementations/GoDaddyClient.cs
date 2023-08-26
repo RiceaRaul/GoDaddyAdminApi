@@ -23,10 +23,10 @@ namespace ExternalServices.Implementations
             _appSettings = appSettings.Value;
             _httpClient.setBaseUrl(_appSettings.GoDaddySettings.BaseUrl);
 
-            setAuthorization();
+            SetAuthorization();
         }
 
-        private void setAuthorization()
+        private void SetAuthorization()
         {
             _httpClient.addHeader(nameof(_appSettings.GoDaddySettings.Authorization), _encryptionService.Decrypt(_appSettings.GoDaddySettings.Authorization));
         }
@@ -38,11 +38,6 @@ namespace ExternalServices.Implementations
 
             return request;
         }
-
-        /*public async Task<bool> CreateRecord()
-        {
-            return true;
-        }*/
 
         public async Task<GetDomainsResponse> GetDomains()
         {

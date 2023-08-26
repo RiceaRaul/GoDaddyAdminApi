@@ -1,7 +1,6 @@
 ﻿using Common.Settings;
 using Microsoft.Extensions.Options;
 using System.Data;
-using System.Data.SqlClient;
 
 namespace DataAccessLayer
 {
@@ -9,11 +8,10 @@ namespace DataAccessLayer
     {
         private IDbConnection? _connection;
         private IDbTransaction? _transaction;
-        private bool _disposed;
         public UnitOfWork(IOptions<AppSettings> appSettings)
         {
-           /* InitCustomColumn();
-
+            InitCustomColumn();
+            /*
             _connection = new SqlConnection("Data Source=91.92.136.222;Initial Catalog=CST;User ID=sa;Password=Relisys123;MultipleActiveResultSets=True");
             _connection.Open();
             _transaction = _connection.BeginTransaction(); */
@@ -26,13 +24,22 @@ namespace DataAccessLayer
 
         public void Dispose()
         {
-            dispose(true);
+            if (_transaction != null)
+            {
+                _transaction.Dispose();
+                _transaction = null;
+            }
+            if (_connection != null)
+            {
+                _connection.Dispose();
+                _connection = null;
+            }
             GC.SuppressFinalize(this);
         }
 
-        private void resetRepositories()
+        private void ResetRepositories()
         {
-
+            throw new NotImplementedException();
         }
 
         public void Commit()
@@ -50,33 +57,14 @@ namespace DataAccessLayer
             {
                 _transaction!.Dispose();
                 _transaction = _connection!.BeginTransaction();
-                resetRepositories();
+                ResetRepositories();
             }
         }
 
-        private void dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    if (_transaction != null)
-                    {
-                        _transaction.Dispose();
-                        _transaction = null;
-                    }
-                    if (_connection != null)
-                    {
-                        _connection.Dispose();
-                        _connection = null;
-                    }
-                }
-                _disposed = true;
-            }
-        }
+       
         ~UnitOfWork()
         {
-            dispose(false);
+            Dispose();
         }
     }
 }

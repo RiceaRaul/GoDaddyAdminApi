@@ -22,7 +22,7 @@ namespace BusinessLayer.Implementation
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appSettings.JWT.Secret));
             var credentials = new SigningCredentials(key,SecurityAlgorithms.HmacSha256);
-            var username = claim.Where(claim => claim.Type == ClaimTypes.Name).First().Value;
+            var username = claim.First(claim => claim.Type == ClaimTypes.Name).Value;
             var token = new JwtSecurityToken(
                 _appSettings.JWT.Issuer,
                 _appSettings.JWT.Audience,

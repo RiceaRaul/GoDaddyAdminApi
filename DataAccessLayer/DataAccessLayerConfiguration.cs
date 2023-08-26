@@ -2,7 +2,7 @@
 
 namespace DataAccessLayer
 {
-    public class DataAccessLayerConfiguration
+    public static class DataAccessLayerConfiguration
     {
         public static void RegisterDepedencies(IServiceCollection services)
         {

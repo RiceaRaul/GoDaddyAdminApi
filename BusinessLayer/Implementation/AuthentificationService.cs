@@ -8,11 +8,9 @@ namespace BusinessLayer.Implementation
     public class AuthentificationService : IAuthentificationService
     {
         private readonly IJwtService _jwtService;
-        private readonly IUnitOfWork _unitOfWork;
-        public AuthentificationService(IJwtService jwtService,IUnitOfWork unitOfWork)
+        public AuthentificationService(IJwtService jwtService)
         {
             _jwtService= jwtService;
-            _unitOfWork = unitOfWork;
         }
 
         public AuthentificationResponse? Authentificate(AuthentificationRequest request)
@@ -25,7 +23,7 @@ namespace BusinessLayer.Implementation
             return _jwtService.CreateJwt(claim);
         }
 
-        private Claim[] CreateClaim(AuthentificationRequest request)
+        private static Claim[] CreateClaim(AuthentificationRequest request)
         {
             var listClaim = new List<Claim>
             {

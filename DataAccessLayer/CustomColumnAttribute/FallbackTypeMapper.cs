@@ -31,7 +31,7 @@ namespace DataAccessLayer.CustomColumnAttribute
                 }
                 catch (NotImplementedException)
                 {
-
+                    return null!;
                 }
             }
             return null!;
@@ -52,7 +52,7 @@ namespace DataAccessLayer.CustomColumnAttribute
                 }
                 catch (NotImplementedException)
                 {
-
+                    return null!;
                 }
             }
             return null!;

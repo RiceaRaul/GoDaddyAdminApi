@@ -10,7 +10,7 @@ namespace DataAccessLayer.CustomColumnAttribute
                 new CustomPropertyTypeMap(
                     typeof(T),
                     (type, columnName) =>
-                        type.GetProperties().FirstOrDefault(prop =>
+                        type.GetProperties().First(prop =>
                                 prop.GetCustomAttributes(false)
                                     .OfType<ColumnAttribute>()
                                     .Any(attr => attr.Name == columnName)

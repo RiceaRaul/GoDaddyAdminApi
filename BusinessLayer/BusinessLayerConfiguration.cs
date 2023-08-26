@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BusinessLayer
 {
-    public class BusinessLayerConfiguration
+    public static class BusinessLayerConfiguration
     {
         public static void RegisterDepedencies(IServiceCollection services)
         {
